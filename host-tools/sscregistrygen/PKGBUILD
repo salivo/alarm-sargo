@@ -1,0 +1,21 @@
+# Maintainer: Andrii Salivon <andrijsalivon@plajta.eu>
+pkgname=sscregistrygen
+pkgver=2.0.0
+pkgrel=1
+pkgdesc="Registry generator for the Qualcomm Snapdragon Sensor Core"
+arch=('any')
+url="https://gitlab.com/flamingradian/sensh"
+license=('GPL3')
+depends=('json-c')
+source=("https://gitlab.com/flamingradian/sensh/-/archive/v$pkgver/sensh-v$pkgver.tar.gz")
+sha512sums=('e6b6eb299c8e44a704dc62afad4d2067d058a3f3dfa26d94cdf021587b4115f75567104c64939de93cad70a21f0d8fd62aae2d6ab2419452bafb4c7f4bda4558')
+
+build() {
+    cd "$srcdir/sensh-v$pkgver/tools"
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "$srcdir/sensh-v$pkgver/tools"
+    install -Dm755 sscregistrygen "$pkgdir/usr/bin/sscregistrygen"
+}

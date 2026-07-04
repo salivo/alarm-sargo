@@ -1,0 +1,20 @@
+# Maintainer: Andrii Salivon <andrijsalivon@plajta.eu>
+
+pkgname=sargo-device-support
+pkgver=0.1
+pkgrel=1
+pkgdesc="Device-specific support files, boot hooks, and configs for Google Pixel 3a (sargo)"
+arch=('aarch64')
+license=('GPL')
+depends=('android-tools' 'mkinitcpio' 'linux-qcom-sdm670')
+source=(
+    'specific'
+    'flash-sargo-boot'
+)
+sha256sums=('3c1b9310e81419aac1350648b88b007de2083f6c99c3055b00f56569cfb82477'
+            'afe70e14a273fc116192dc8db84592c3e5a8769727209d60bcd28e228b073a71')
+
+package() {
+    install -Dm644 "$srcdir/specific" "$pkgdir/usr/share/mkbootimg/sargo/specific"
+    install -Dm755 "$srcdir/flash-sargo-boot" "$pkgdir/usr/lib/initcpio/post/flash-sargo-boot"
+}

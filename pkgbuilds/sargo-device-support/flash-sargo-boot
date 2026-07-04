@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# /usr/lib/initcpio/post/flash-sargo-boot
+if [[ -t 1 ]]; then
+  ERROR_OUT="\e[1;31m  -> ERROR:\e[0m"
+  INFO_OUT="\e[1;34m  ->\e[0m"
+else
+  ERROR_OUT="  -> ERROR:"
+  INFO_OUT="  ->"
+fi
+
+
+
+KERNEL_IMAGE="$1"
+INITRAMFS_IMAGE="$2"
+OUTPUT="/boot/boot-sargo.img"
+SPECIFIC_FILE="/usr/share/mkbootimg/sargo/specific"
+
+
+if [[ -z "$KERNEL_IMAGE" || -z "$INITRAMFS_IMAGE" ]]; then
+    echo "Error: missing kernel or initramfs path." >&2
+    echo "Usage: $0 <kernel_image> <initramfs_image>" >&2
+    exit 1
+fi
+
+
+CMDLINE=""
+shopt -s nullglob
+for conf in /etc/cmdline.d/*.conf; do
+    CMDLINE+="$(tr '\n' ' ' < "$conf") "
+done
+shopt -u nullglob
+CMDLINE="${CMDLINE%"${CMDLINE##*[![:space:]]}"}"
+if [[ -z "$CMDLINE" ]]; then
+    echo -e "$ERROR_OUT no cmdline. Please configure /etc/cmdline.d/*.conf" >&2
+    exit 1
+fi
+
+
+if [[ -f "$SPECIFIC_FILE" ]]; then
+    source "$SPECIFIC_FILE"
+else
+    echo -e "$ERROR_OUT Config file not found at $SPECIFIC_FILE" >&2
+    exit 1
+fi
+
+
+echo -e "$INFO_OUT Generating Android boot image for sargo..."
+
+# Append DTB to kernel image
+
+DTB_PATH="/boot/dtbs/${DEVICE_DTB}.dtb"
+
+if [[ ! -f "$DTB_PATH" ]]; then
+    echo -e "$ERROR_OUT DTB not found at $DTB_PATH" >&2
+    exit 1
+fi
+TMP_KERNEL=$(mktemp /tmp/Image.gz-dtb.XXXXXX)
+trap 'rm -f "$TMP_KERNEL"' EXIT
+
+cat "$KERNEL_IMAGE" "$DTB_PATH" > "$TMP_KERNEL"
+
+# Create android boot img
+
+mkbootimg \
+    --kernel "$TMP_KERNEL" \
+    --ramdisk "$INITRAMFS_IMAGE" \
+    --cmdline "$CMDLINE" \
+    "${MKBOOTIMG_BOARD_ARGS[@]}" \
+    -o "$OUTPUT"
+
+if [[ $? -eq 0 ]]; then
+    echo -e "$INFO_OUT Successfully created $OUTPUT"
+else
+    echo -e "$ERROR_OUT mkbootimg failed!" >&2
+    exit 1
+fi
+
+# Flash it to right slot
+
+SLOT_SUFFIX=$(grep -o 'androidboot\.slot_suffix=[^ ]*' /proc/cmdline | cut -d= -f2)
+
+if [[ -z "$SLOT_SUFFIX" ]]; then
+    echo -e "$ERROR_OUT Could not determine androidboot.slot_suffix from /proc/cmdline" >&2
+    exit 1
+fi
+
+TARGET_PARTITION="/dev/disk/by-partlabel/boot${SLOT_SUFFIX}"
+
+if [[ ! -b "$TARGET_PARTITION" ]]; then
+    echo -e "$$ERROR_OUT Target partition $TARGET_PARTITION does not exist!" >&2
+    exit 1
+fi
+
+echo -e "$INFO_OUT Flashing image to $TARGET_PARTITION..."
+
+dd if="$OUTPUT" of="$TARGET_PARTITION" bs=4M conv=fsync status=none
+
+echo -e "$INFO_OUT Verifying flashed image..."
+
+
+IMG_SIZE=$(stat -c %s "$OUTPUT")
+IMG_HASH=$(sha256sum "$OUTPUT" | awk '{print $1}')
+PART_HASH=$(dd if="$TARGET_PARTITION" bs=4M count="$IMG_SIZE" iflag=count_bytes status=none | sha256sum | awk '{print $1}')
+
+if [[ "$IMG_HASH" == "$PART_HASH" ]]; then
+    echo -e "$INFO_OUT Successfully flashed to $TARGET_PARTITION"
+else
+    echo -e "$ERROR_OUT Hash mismatch! Flashed data is corrupted." >&2
+    exit 1
+fi
