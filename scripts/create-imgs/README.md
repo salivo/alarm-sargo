@@ -27,6 +27,7 @@ Once the images are built in the `dist` directory, you can flash them to your de
 Run the following `fastboot` commands to flash all the required images:
 
 ```sh
+fastboot -w
 fastboot flash boot dist/boot-sargo.img
 fastboot flash userdata dist/rootfs.img
 fastboot reboot
