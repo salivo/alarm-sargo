@@ -37,7 +37,7 @@ build() {
   # get kernel version
   make prepare
   make -s kernelrelease > version
-  
+
   # build!
   unset LDFLAGS
   make ${MAKEFLAGS} Image.gz modules

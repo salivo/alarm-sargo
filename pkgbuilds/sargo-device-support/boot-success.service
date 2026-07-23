@@ -1,0 +1,12 @@
+[Unit]
+Description=Mark boot as successful for Qualcomm A/B bootloader
+ConditionPathExists=/dev/disk/by-partlabel/misc
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/qbootctl -m
+RemainAfterExit=yes
+
+[Install]
+WantedBy=basic.target

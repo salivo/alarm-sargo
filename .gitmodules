@@ -1,0 +1,6 @@
+[submodule "pkgbuilds/pd-mapper"]
+	path = pkgbuilds/pd-mapper
+	url = https://aur.archlinux.org/pd-mapper.git
+[submodule "pkgbuilds/tqftpserv"]
+	path = pkgbuilds/tqftpserv
+	url = https://aur.archlinux.org/tqftpserv.git
