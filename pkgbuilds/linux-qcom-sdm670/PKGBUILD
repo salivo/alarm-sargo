@@ -7,7 +7,7 @@ _kernelname=${pkgbase#linux}
 _desc="AArch64 qcom sdm670"
 pkgver=7.0.10
 
-pkgrel=2
+pkgrel=3
 arch=('aarch64')
 url="https://gitlab.com/sdm670-mainline/linux"
 license=('GPL-2.0-only')
@@ -19,7 +19,7 @@ source=("https://gitlab.com/sdm670-mainline/linux/-/archive/$_tag/$_srcname.tar.
         'config'
         'linux.preset')
 sha256sums=('d4ff6d67cd04615bd62f6c16dfc3a575c5a6a1975b591f0f8f7d8a64c3911203'
-            'd8bb898d6a93ade203a797de0885b52a0b4afc22415297f5996eebcc464fef95'
+            '5c21618670a38ef31a63dc0420e86b654022592201bd607e43a940376d1d9cc6'
             '73fdca55e375b3f44831b010242a0c28dd389d8085c06abb4b5d75b2ed4c2372')
 
 prepare() {
