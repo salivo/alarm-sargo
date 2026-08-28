@@ -1,13 +1,14 @@
 [Unit]
 Description=Initialize Pixel 3a Bluetooth MAC Address
 Requires=sys-subsystem-bluetooth-devices-hci0.device
-After=sys-subsystem-bluetooth-devices-hci0.device
-Before=bluetooth.service
+After=sys-subsystem-bluetooth-devices-hci0.device bluetooth.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/set-sargo-bt-mac.sh
 RemainAfterExit=yes
+Restart=on-failure
+RestartSec=1
 
 [Install]
 WantedBy=bluetooth.target

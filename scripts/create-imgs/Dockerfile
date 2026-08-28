@@ -20,7 +20,7 @@ RUN apk add --no-cache curl tar xz \
     && tar -xpf /tmp/alarm.tar.gz -C /rootfs --numeric-owner \
     && rm -f /tmp/alarm.tar.gz
 
-# Prepare rootfs 
+# Prepare rootfs
 
 FROM scratch AS rootfs
 
@@ -54,17 +54,20 @@ COPY usb-gadget.sh /usr/local/bin/
 COPY usb-gadget.service /etc/systemd/system/
 COPY 80-usb0.network /etc/systemd/network/
 
+RUN systemctl preset-all
 RUN systemctl enable sshd.service
 RUN systemctl enable usb-gadget.service
 
-# Pack it all 
+RUN cat "blacklist ipa" > /etc/modprobe.d/blacklist-ipa.conf # Disable IPA (IP Address Management) TODO: Should be fixed
+
+# Pack it all
 
 FROM --platform=$BUILDPLATFORM alpine:3.20 AS packer
- 
+
 RUN apk add --no-cache e2fsprogs
- 
+
 COPY --from=rootfs / /rootfs-src
- 
+
 ARG IMG_LABEL=ALARM_ROOT
 ARG IMG_EXTRA_MB=512
 ARG BOOT_IMG_PATH=boot/boot-sargo.img

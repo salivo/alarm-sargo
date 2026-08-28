@@ -2,7 +2,7 @@
 
 pkgname=sargo-device-support
 pkgver=0.1
-pkgrel=2
+pkgrel=3
 pkgdesc="Device-specific support files, boot hooks, and configs for Google Pixel 3a (sargo)"
 arch=('aarch64')
 license=('GPL')
@@ -22,17 +22,17 @@ sha256sums=('3c1b9310e81419aac1350648b88b007de2083f6c99c3055b00f56569cfb82477'
             'afe70e14a273fc116192dc8db84592c3e5a8769727209d60bcd28e228b073a71'
             '3c39341d868ab1554380f14bfd9813d8da9ae0c40d3238166a49a59df1557df5'
             'aa002e4f063e52de773acf7a3d40c9747d0c6db2f4975512dc1a854ea9f15080'
-            'd91c5d6dc6cad4e0236e7101002be80e3ef05b8bf18874be1287e7f52d2edbff'
+            '73b0a7eea74be2211423e731000e954721fe662f5a2d36be2fbdd7aa58a173bf'
             '55cc5f25d0d24a32ea57820a81bee0292eaee3b014daf08f66eb36dda1349647')
-            
+
 package() {
     install -Dm644 "$srcdir/specific" "$pkgdir/usr/share/mkbootimg/sargo/specific"
     install -Dm755 "$srcdir/flash-sargo-boot" "$pkgdir/usr/lib/initcpio/post/flash-sargo-boot"
-    
+
     install -Dm644 "$srcdir/boot-success.service" "${pkgdir}/usr/lib/systemd/system/boot-success.service"
-    
+
     install -Dm755 "$srcdir/set-sargo-bt-mac.sh" "${pkgdir}/usr/bin/set-sargo-bt-mac.sh"
     install -Dm644 "$srcdir/sargo-bt-mac.service" "${pkgdir}/usr/lib/systemd/system/sargo-bt-mac.service"
-    
+
     install -Dm644 "$srcdir/80-sargo.preset" "$pkgdir/usr/lib/systemd/system-preset/80-sargo.preset"
 }
