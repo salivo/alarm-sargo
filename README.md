@@ -27,7 +27,7 @@ resize2fs /dev/mmcblk0p72
 ```
 You need networking, some editor, sudo, etc., for example:
 ```bash
-pacman -S base-devel NetworkManager sudo micro nano 
+pacman -S base-devel networkmanager sudo micro nano 
 ```
 #### Bluetooth
 ```bash
